@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#B3F1E8">
+
+    <EditText
+        android:id="@+id/ev_id"
+        android:textColor="@color/black"
+        android:background="#11000000"
+        android:layout_width="260dp"
+        android:layout_height="30dp"
+        android:layout_below="@+id/iv_user"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="40dp"
+        android:ems="10"
+        android:hint=" id"
+        />
+    <EditText
+        android:id="@+id/et_name"
+        android:textColor="#ffffff"
+        android:background="#11000000"
+        android:layout_width="260dp"
+        android:layout_height="30dp"
+        android:layout_below="@+id/ev_id"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="40dp"
+        android:ems="10"
+        android:hint=" name"
+        android:inputType="textPersonName"
+        />
+    <EditText
+        android:id="@+id/et_surname"
+        android:textColor="#ffffff"
+        android:background="#11000000"
+        android:layout_width="260dp"
+        android:layout_height="30dp"
+        android:layout_below="@+id/et_name"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="40dp"
+        android:ems="10"
+        android:hint=" surname"
+        android:inputType="textPersonName"
+        />
+    <Spinner
+        android:id="@+id/chooseGender"
+        style="@style/Widget.AppCompat.Spinner.Underlined"
+        android:layout_width="250dp"
+        android:layout_height="35dp"
+        android:layout_marginLeft="60dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="50dp"
+        android:layout_below="@+id/et_surname"
+        android:gravity="center"
+        android:background="#11000000"
+        android:autofillHints="select gender"
+        android:splitMotionEvents="false"
+        android:textColor="@android:color/black"
+        android:textStyle="bold" />
+
+    <Button
+        android:id="@+id/btn_register"
+        android:backgroundTint="#12C5AC"
+        android:textColor="#ffffff"
+        android:layout_width="260dp"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:layout_below="@+id/et_surname"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="110dp"
+        android:text="Register" />
+
+
+</RelativeLayout>
