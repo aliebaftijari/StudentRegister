@@ -7,21 +7,51 @@
     android:layout_height="match_parent"
     android:background="#B3F1E8">
 
+
+    <ImageView
+        android:id="@+id/iv_userCamera"
+        android:layout_width="200dp"
+        android:layout_marginTop="20dp"
+        android:layout_height="100dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        app:srcCompat="@drawable/ic_baseline_person_24"
+        tools:ignore="VectorDrawableCompat" />
+    <Button
+        android:id="@+id/cameraBtn"
+        android:layout_width="100dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="130dp"
+        android:text="Camera"
+        android:layout_marginLeft="220dp"
+       />
+
+    <Button
+        android:id="@+id/galleryBtn"
+        android:layout_width="100dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="130dp"
+        android:layout_marginLeft="100dp"
+
+        android:text="Gallery"
+
+         />
+
     <EditText
         android:id="@+id/ev_id"
         android:textColor="@color/black"
         android:background="#11000000"
         android:layout_width="260dp"
         android:layout_height="30dp"
-        android:layout_below="@+id/iv_user"
+        android:layout_below="@+id/iv_userCamera"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="60dp"
         android:ems="10"
         android:hint=" id"
         />
     <EditText
         android:id="@+id/et_name"
-        android:textColor="#ffffff"
+        android:textColor="#221F1F"
         android:background="#11000000"
         android:layout_width="260dp"
         android:layout_height="30dp"
@@ -34,7 +64,7 @@
         />
     <EditText
         android:id="@+id/et_surname"
-        android:textColor="#ffffff"
+        android:textColor="#0C0C0C"
         android:background="#11000000"
         android:layout_width="260dp"
         android:layout_height="30dp"
@@ -47,18 +77,18 @@
         />
     <Spinner
         android:id="@+id/chooseGender"
-        style="@style/Widget.AppCompat.Spinner.Underlined"
-        android:layout_width="250dp"
+        android:layout_width="260dp"
         android:layout_height="35dp"
-        android:layout_marginLeft="60dp"
+        android:layout_marginLeft="75dp"
         android:layout_marginRight="20dp"
         android:layout_marginBottom="10dp"
         android:layout_marginTop="50dp"
         android:layout_below="@+id/et_surname"
+        android:ellipsize="marquee"
         android:gravity="center"
         android:background="#11000000"
-        android:autofillHints="select gender"
-        android:splitMotionEvents="false"
+        android:splitMotionEvents="true"
+        android:spinnerMode="dropdown"
         android:textColor="@android:color/black"
         android:textStyle="bold" />
 
