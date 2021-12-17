@@ -23,11 +23,13 @@ import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CalendarView;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.studentregister.db.DBHelper;
 import com.google.android.material.navigation.NavigationView;
@@ -40,6 +42,7 @@ public class MainActivity extends AppCompatActivity implements  NavigationView.O
     public DrawerLayout drawerLayout;
     public ActionBarDrawerToggle actionBarDrawerToggle;
     public NavigationView navigationView = null;
+    CalendarView calendar;
 
     @SuppressLint({"Range", "ResourceType"})
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -67,6 +70,8 @@ public class MainActivity extends AppCompatActivity implements  NavigationView.O
         ActionBar actionBar = getSupportActionBar();
         actionBar.setTitle("Main");
 
+        calendar = (CalendarView)
+                findViewById(R.id.calendar);
 
 
         Cursor c = db.getAllStudentInfo();
@@ -76,7 +81,43 @@ public class MainActivity extends AppCompatActivity implements  NavigationView.O
                     c.getString(c.getColumnIndex("Mbiemri")),
                     c.getString(c.getColumnIndex("Gjinia")));
         }
-    }
+
+
+        Button createBtn = findViewById(R.id.createBtn);
+        createBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Intent redirectToActions = new Intent(getApplicationContext(), RegisterActivity.class);
+                startActivity(redirectToActions);
+
+            }
+
+        });
+
+
+
+
+        calendar = (CalendarView) findViewById(R.id.calendar);
+        calendar
+                .setOnDateChangeListener(
+                new CalendarView
+                .OnDateChangeListener() {
+        @Override
+
+        public void onSelectedDayChange(
+                @NonNull CalendarView view,
+        int year,
+        int month,
+        int dayOfMonth)  {
+
+            String Date
+                    = dayOfMonth + "-"
+                    + (month + 1) + "-" + year;
+        }
+    });
+}
+
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
 
@@ -131,9 +172,9 @@ public class MainActivity extends AppCompatActivity implements  NavigationView.O
         Point size = new Point();
         display.getSize(size);
 
-        int widthColumn = (size.x / 6);
+        int widthColumn = (size.x / 7);
 
-        int maxColumnHeight = 120;
+        int maxColumnHeight = 110;
         TableRow newRow;
 
         newRow = new TableRow(this);
@@ -146,7 +187,7 @@ public class MainActivity extends AppCompatActivity implements  NavigationView.O
         newId.setMaxHeight(maxColumnHeight);
         newId.setGravity(Gravity.CENTER);
         newId.setTextSize(12);
-        newId.setTextColor(Color.WHITE);
+        newId.setTextColor(Color.BLACK);
         newId.setPadding(10, 0, 10, 0);
         newRow.addView(newId, layoutParamsForId);
         newRow.setBackground(getDrawable(R.color.white));
@@ -178,38 +219,86 @@ public class MainActivity extends AppCompatActivity implements  NavigationView.O
 
         TableRow.LayoutParams layoutParamsForGender = new TableRow.LayoutParams(widthColumn, maxColumnHeight);
         layoutParamsForGender.gravity = Gravity.CENTER;
-        TextView newPath = new TextView(this);
-        newPath.setText(Gjinia);
-        newPath.setTextColor(Color.WHITE);
-        newPath.setMaxHeight(maxColumnHeight);
-        newPath.setGravity(Gravity.CENTER);
-        newPath.setTextSize(12);
-        newPath.setPadding(10, 0, 10, 0);
-        newRow.addView(newPath, layoutParamsForGender);
+        TextView newGender = new TextView(this);
+        newGender.setText(Gjinia);
+        newGender.setTextColor(Color.BLACK);
+        newGender.setMaxHeight(maxColumnHeight);
+        newGender.setGravity(Gravity.CENTER);
+        newGender.setTextSize(12);
+        newGender.setPadding(10, 0, 10, 0);
+        newRow.addView(newGender, layoutParamsForGender);
 
 
         TableRow.LayoutParams layoutParamsForbtn = new TableRow.LayoutParams(widthColumn, maxColumnHeight);
         layoutParamsForbtn.gravity = Gravity.CENTER;
-        TextView addBtn = new TextView(this);
-        addBtn.setText("Add");
-        addBtn.setTextColor(Color.BLACK);
-        addBtn.setMaxHeight(maxColumnHeight);
-        addBtn.setGravity(Gravity.CENTER);
-        addBtn.setPadding(0, 0, 10, 0);
-        newRow.addView(addBtn, layoutParamsForbtn);
-        addBtn.setOnClickListener(new View.OnClickListener() {
+        TextView editBtn = new TextView(this);
+        editBtn.setText("Edit");
+        editBtn.setTextColor(Color.BLACK);
+        editBtn.setMaxHeight(maxColumnHeight);
+        editBtn.setGravity(Gravity.CENTER);
+        editBtn.setPadding(0, 0, 10, 0);
+        newRow.addView(editBtn, layoutParamsForbtn);
+        editBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent redirectToActions = new Intent(getApplicationContext(), RegisterActivity.class);
+                Intent redirectToActions = new Intent(getApplicationContext(), EditActivity.class);
+                redirectToActions.putExtra("Id", newId.getText().toString());
+                redirectToActions.putExtra("Emri", newName.getText().toString());
+                redirectToActions.putExtra("Mbiemri", newSurname.getText().toString());
+                redirectToActions.putExtra("Gjinia", newGender.getText().toString());
                 startActivity(redirectToActions);
 
             }
         });
+
+        TableRow.LayoutParams layoutParamsForbtn2 = new TableRow.LayoutParams(widthColumn, maxColumnHeight);
+        layoutParamsForbtn2.gravity = Gravity.CENTER;
+        TextView deleteBtn = new TextView(this);
+        deleteBtn.setText("Delete");
+        deleteBtn.setTextColor(Color.BLACK);
+        deleteBtn.setMaxHeight(maxColumnHeight);
+        deleteBtn.setGravity(Gravity.CENTER);
+        deleteBtn.setPadding(0, 0, 10, 0);
+        newRow.addView(deleteBtn, layoutParamsForbtn2);
+        deleteBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean deleted = db.deleteRecordFromStdTable(newId.getText().toString());
+                if (deleted) {
+                    Toast.makeText(getApplicationContext(),
+                            "DELETED_FROM_DB",
+                            Toast.LENGTH_SHORT).show();
+                    Intent intent = getIntent();
+                    overridePendingTransition(0, 0);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                    finish();
+                    overridePendingTransition(0, 0);
+                    startActivity(intent);
+                }
+            }
+        });
+
+        TableRow.LayoutParams layoutParamsForbtn3 = new TableRow.LayoutParams(widthColumn, maxColumnHeight);
+        layoutParamsForbtn3.gravity = Gravity.CENTER;
+        TextView infoBtn = new TextView(this);
+        infoBtn.setText("Info");
+        infoBtn.setTextColor(Color.BLACK);
+        infoBtn.setMaxHeight(maxColumnHeight);
+        infoBtn.setGravity(Gravity.CENTER);
+        infoBtn.setPadding(0, 0, 10, 0);
+        newRow.addView(infoBtn, layoutParamsForbtn3);
+        infoBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent redirectToActions = new Intent(getApplicationContext(), InfoActivity.class);
+                startActivity(redirectToActions);
+
+            }
+        });
+
         tblStudentInfo.addView(newRow);
 
     }
-
-
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {

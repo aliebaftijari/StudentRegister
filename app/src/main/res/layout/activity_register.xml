@@ -23,19 +23,10 @@
         android:layout_height="40dp"
         android:layout_marginTop="130dp"
         android:text="Camera"
-        android:layout_marginLeft="220dp"
+        android:layout_marginLeft="160dp"
        />
 
-    <Button
-        android:id="@+id/galleryBtn"
-        android:layout_width="100dp"
-        android:layout_height="40dp"
-        android:layout_marginTop="130dp"
-        android:layout_marginLeft="100dp"
 
-        android:text="Gallery"
-
-         />
 
     <EditText
         android:id="@+id/ev_id"
@@ -92,6 +83,15 @@
         android:textColor="@android:color/black"
         android:textStyle="bold" />
 
+    <DatePicker
+        android:id="@+id/datePicker1"
+        android:layout_width="250dp"
+        android:layout_height="130dp"
+        android:layout_marginTop="430dp"
+        android:layout_marginLeft="75dp"
+        android:datePickerMode="spinner"
+        android:calendarViewShown="false"/>
+
     <Button
         android:id="@+id/btn_register"
         android:backgroundTint="#12C5AC"
@@ -101,8 +101,29 @@
         android:textSize="20sp"
         android:layout_below="@+id/et_surname"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="110dp"
+        android:layout_marginTop="210dp"
         android:text="Register" />
 
 
+    <androidx.drawerlayout.widget.DrawerLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/my_drawer_layout"
+        android:layout_width="200dp"
+        android:layout_height="match_parent"
+        tools:context=".MainActivity"
+        tools:ignore="HardcodedText">
+
+
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/nav_view"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:visibility="visible"
+        app:menu="@menu/navigation_menu" />
+
+
+</androidx.drawerlayout.widget.DrawerLayout>
 </RelativeLayout>
