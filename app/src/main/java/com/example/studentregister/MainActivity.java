@@ -9,6 +9,7 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.DialogInterface;
@@ -24,8 +25,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CalendarView;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Switch;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -35,6 +38,8 @@ import com.example.studentregister.db.DBHelper;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 
+import org.w3c.dom.Text;
+
 public class MainActivity extends AppCompatActivity implements  NavigationView.OnNavigationItemSelectedListener {
     TableLayout tblStudentInfo = null;
 
@@ -43,6 +48,8 @@ public class MainActivity extends AppCompatActivity implements  NavigationView.O
     public ActionBarDrawerToggle actionBarDrawerToggle;
     public NavigationView navigationView = null;
     CalendarView calendar;
+    Switch switchButton;
+    private Activity activity;
 
     @SuppressLint({"Range", "ResourceType"})
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -56,6 +63,8 @@ public class MainActivity extends AppCompatActivity implements  NavigationView.O
         drawerLayout = (DrawerLayout) findViewById(R.id.my_drawer_layout);
 
         navigationView = (NavigationView) findViewById(R.id.nav_view);
+
+        InfoActivity.tv_info = (TextView) findViewById(R.id.tv_info);
         navigationView.setNavigationItemSelectedListener(this);
 
 
@@ -74,14 +83,6 @@ public class MainActivity extends AppCompatActivity implements  NavigationView.O
                 findViewById(R.id.calendar);
 
 
-        Cursor c = db.getAllStudentInfo();
-        while (c.moveToNext()) {
-            populatetblStudentInfo(c.getString(c.getColumnIndex("Id")),
-                    c.getString(c.getColumnIndex("Emri")),
-                    c.getString(c.getColumnIndex("Mbiemri")),
-                    c.getString(c.getColumnIndex("Gjinia")));
-        }
-
 
         Button createBtn = findViewById(R.id.createBtn);
         createBtn.setOnClickListener(new View.OnClickListener() {
@@ -95,9 +96,23 @@ public class MainActivity extends AppCompatActivity implements  NavigationView.O
 
         });
 
-
-
-
+        Switch sw = (Switch) findViewById(R.id.switch1);
+        sw.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    Cursor c = db.getAllStudentInfo();
+                    while (c.moveToNext()) {
+                        populatetblStudentInfo(c.getString(c.getColumnIndex("Id")),
+                                c.getString(c.getColumnIndex("Emri")),
+                                c.getString(c.getColumnIndex("Mbiemri")),
+                                c.getString(c.getColumnIndex("Gjinia")),
+                                c.getString(c.getColumnIndex("Ditelindja")));
+                    }
+                } else {
+                    tblStudentInfo.removeViews(1, Math.max(0, tblStudentInfo.getChildCount() - 1));
+                }
+            }
+        });
         calendar = (CalendarView) findViewById(R.id.calendar);
         calendar
                 .setOnDateChangeListener(
@@ -165,14 +180,14 @@ public class MainActivity extends AppCompatActivity implements  NavigationView.O
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public void populatetblStudentInfo(String Id, String Emri, String Mbiemri, String Gjinia) {
+    public void populatetblStudentInfo(String Id, String Emri, String Mbiemri, String Gjinia, String Ditelindja) {
 
         Display display = getWindowManager().getDefaultDisplay();
 
         Point size = new Point();
         display.getSize(size);
 
-        int widthColumn = (size.x / 7);
+        int widthColumn = (size.x / 8);
 
         int maxColumnHeight = 110;
         TableRow newRow;
@@ -227,6 +242,17 @@ public class MainActivity extends AppCompatActivity implements  NavigationView.O
         newGender.setTextSize(12);
         newGender.setPadding(10, 0, 10, 0);
         newRow.addView(newGender, layoutParamsForGender);
+
+        TableRow.LayoutParams layoutParamsForDate = new TableRow.LayoutParams(widthColumn, maxColumnHeight);
+        layoutParamsForDate.gravity = Gravity.CENTER;
+        TextView newDate = new TextView(this);
+        newDate.setText(Ditelindja);
+        newDate.setTextColor(Color.BLACK);
+        newDate.setMaxHeight(maxColumnHeight);
+        newDate.setGravity(Gravity.CENTER);
+        newDate.setTextSize(12);
+        newDate.setPadding(10, 0, 10, 0);
+        newRow.addView(newDate, layoutParamsForDate);
 
 
         TableRow.LayoutParams layoutParamsForbtn = new TableRow.LayoutParams(widthColumn, maxColumnHeight);
@@ -288,9 +314,15 @@ public class MainActivity extends AppCompatActivity implements  NavigationView.O
         infoBtn.setPadding(0, 0, 10, 0);
         newRow.addView(infoBtn, layoutParamsForbtn3);
         infoBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
+            @Override  // tek pjesa ku e kemi shtu butonin per info e shofim si i marrim te dhenat kur e popullojme nje tabel
+            // i ruajme dhe menpas kur kalojme ne aktivitetin tjeter i perdorim ato vlera te cilat jane te marra nga tabela ne main
             public void onClick(View v) {
                 Intent redirectToActions = new Intent(getApplicationContext(), InfoActivity.class);
+                redirectToActions.putExtra("Id", newId.getText().toString());
+                redirectToActions.putExtra("Emri", newName.getText().toString());
+                redirectToActions.putExtra("Mbiemri", newSurname.getText().toString());
+                redirectToActions.putExtra("Gjinia", newGender.getText().toString());
+                redirectToActions.putExtra("Ditelindja", newDate.getText().toString());
                 startActivity(redirectToActions);
 
             }

@@ -15,9 +15,17 @@
         android:layout_height="40dp"
         android:layout_marginTop="120dp"
         android:text="Create"
-        android:layout_marginLeft="310dp"
+        android:layout_marginLeft="250dp"
 
         />
+    <Switch
+        android:id="@+id/switch1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="360dp"
+        android:layout_marginTop="130dp"
+         >
+    </Switch>
 
                 <RelativeLayout
                 android:id="@+id/relativeLayout"
@@ -26,8 +34,9 @@
                 android:layout_marginTop="160dp"
                 android:background="@drawable/border_layout">
 
+
                     <ScrollView
-                        android:id="@+id/sclStdInfo"
+                        android:id="@+id/sclStdInfo0"
                         android:layout_width="match_parent"
                         android:layout_height="250dp"
                         android:layout_rowSpan="1"
@@ -39,11 +48,15 @@
                         android:padding="4dp"
                         android:showDividers="middle">
 
-            <TableLayout
-                android:id="@+id/tblStudentInfo"
-                android:layout_width="match_parent"
-                android:layout_height="250dp"
-                android:background="@color/white">
+                        <HorizontalScrollView
+                            android:layout_width="match_parent" android:layout_height="250dp">
+
+                           <TableLayout
+                            android:id="@+id/tblStudentInfo"
+                            android:layout_width="match_parent"
+                            android:layout_height="250dp"
+                            android:background="@color/white"
+                           >
 
                 <TableRow
                     android:background="@drawable/border_top_and_bottom_table_row"
@@ -89,6 +102,15 @@
                         android:textColor="#000000"
                         android:textSize="15sp"
                         android:textStyle="bold" />
+                    <TextView
+                        android:id="@+id/Ditelindja"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:padding="5dp"
+                        android:text="Ditelindja"
+                        android:textColor="#000000"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/Buttons"
@@ -99,7 +121,8 @@
                         android:textSize="11sp"
                         android:textStyle="bold" />
                 </TableRow>
-            </TableLayout>
+                    </TableLayout>
+                        </HorizontalScrollView>
             </ScrollView>
 
                     <CalendarView

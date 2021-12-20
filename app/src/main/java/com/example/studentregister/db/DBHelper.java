@@ -11,12 +11,13 @@ import android.database.sqlite.SQLiteOpenHelper;
 import com.example.studentregister.RegisterActivity;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 public class DBHelper extends SQLiteOpenHelper {
     //DB Version
     private static final int DB_VERSION = 8;
     //DB NAME
-    private static final String DB_NAME = "dbStudent818";
+    private static final String DB_NAME = "dbStudent882";
 
     public String path = (RegisterActivity.currentPhotoPath == null) ? "" : RegisterActivity.currentPhotoPath;
 
@@ -38,7 +39,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 + "Mbiemri TEXT,"
                 + "Gjinia TEXT,"
                 + "Path TEXT,"
-                + "Ditelindja DATETIME DEFAULT CURRENT_TIMESTAMP"
+                + "Ditelindja TEXT" // ose date
                 + ")";
         db.execSQL(CREATE_TABLE);
     }
@@ -48,13 +49,15 @@ public class DBHelper extends SQLiteOpenHelper {
 
     }
 
-    public boolean insertstdInfo(String emri, String mbiemri, String gjinia, String ditelindja) {
+    public boolean insertstdInfo(String emri, String mbiemri, String gjinia,String path, String ditelindja) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put("Emri", emri);
         contentValues.put("Mbiemri", mbiemri);
         contentValues.put("Gjinia", gjinia);
+        contentValues.put("Path", path);
         contentValues.put("Ditelindja", ditelindja);
+
 
         long result = db.insert(TABLE_STUDENT_INFO, null, contentValues);
         if (result == -1) {
@@ -63,22 +66,16 @@ public class DBHelper extends SQLiteOpenHelper {
             return true;
         }
     }
-    public boolean updateStudentPhoto(String path) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put("Path", path);
 
-        int result = db.update("std_info", contentValues, "Id =" + "(select max(Id) from std_info)", null);
-
-        if (result == -1) {
-            return false;
-        } else {
-            return true;
-        }
-    }
     public Cursor getAllStudentInfo() {
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor resultSet = db.rawQuery("select Id, emri, mbiemri, gjinia  from std_info", null);
+        Cursor resultSet = db.rawQuery("select Id, emri, mbiemri, gjinia, ditelindja  from std_info", null);
+        return resultSet;
+    }
+
+    public Cursor getOneImage() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor resultSet = db.rawQuery("select path from std_info  ", null);
         return resultSet;
     }
 

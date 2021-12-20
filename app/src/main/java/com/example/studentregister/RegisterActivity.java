@@ -10,7 +10,9 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.StrictMode;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.MimeTypeMap;
@@ -19,7 +21,6 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -43,6 +44,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 
 public class RegisterActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener  {
@@ -51,6 +53,7 @@ public class RegisterActivity extends AppCompatActivity implements NavigationVie
     public static final int CAMERA_PERM_CODE = 101;
     public static final int CAMERA_REQUEST_CODE = 102;
     public static final int GALLERY_REQUEST_CODE = 105;
+    private static final int CAMERA_REQUEST = 1888;
     ImageView iv_userCamera;
     Button cameraBtn;
     Button galleryBtn;
@@ -64,6 +67,8 @@ public class RegisterActivity extends AppCompatActivity implements NavigationVie
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+        StrictMode.setVmPolicy(builder.build());
         db = new DBHelper(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
@@ -86,15 +91,13 @@ public class RegisterActivity extends AppCompatActivity implements NavigationVie
         actionBarDrawerToggle.syncState();
 
 
-
-
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 
         cameraBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                askCameraPermissions();
+                dispatchTakePictureIntent();
             }
         });
 
@@ -125,6 +128,23 @@ public class RegisterActivity extends AppCompatActivity implements NavigationVie
                 String name_ = et_name.getText().toString();
                 String surname_ = et_surname.getText().toString();
                 String gender_ = chooseGender.getSelectedItem().toString().trim();
+                //procedura per ruajte te dates nepermjet nje date picker kur deklarojme variablat per get vitin,mujin dhe diten
+                int day = picker.getDayOfMonth();
+                int month = picker.getMonth();
+                int year = picker.getYear();
+                Calendar calendar = Calendar.getInstance();
+                calendar.set(year,month,day);   //kjo form eshte per ruajtje te dates si text
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");// ne baze te kesaj ne e percaktojme formatin se si
+                                                                                                // do te na ruhet data
+                String formatedDate = simpleDateFormat.format(calendar.getTime());
+//
+//                ndersa kur e ruajm si date ather e kemi metoden tjeter
+//                Date date = null;
+//                try {
+//                     date = simpleDateFormat.parse(formatedDate);
+//                } catch (ParseException e) {
+//                    e.printStackTrace();
+//                }
                 File f;
                 if(name_.isEmpty()){
                     et_name.setError("Name field is Empty");
@@ -136,12 +156,16 @@ public class RegisterActivity extends AppCompatActivity implements NavigationVie
                 }
                 else if (chooseGender.getSelectedItem().toString().trim().equals("")) {
                         ((TextView) chooseGender.getSelectedView()).setError("No selected item");
-                }
+                }// ketu eshte shtuar pjesa per me validu nese pathi i fotos se ruajtur eshte null ose string i zbrazet
+                else  if (((currentPhotoPath == null) ? "" : currentPhotoPath).equalsIgnoreCase(""))  {
+                    Toast.makeText(getApplicationContext(), "Could not insert the photo, photopath is null ", Toast.LENGTH_LONG).show();
+
+                    }
                 else  if(name_.isEmpty() && surname_.isEmpty() && gender_.isEmpty()){
 
                 }
-                else  if(!(name_.isEmpty() && surname_.isEmpty() && gender_.isEmpty())) {
-                    boolean insertedToDb = db.insertstdInfo(et_name.getText().toString(), et_surname.getText().toString(), chooseGender.getSelectedItem().toString(), picker.toString());
+                else  if(!(name_.isEmpty() && surname_.isEmpty() && gender_.isEmpty())) {//shtohet variabla ku ruhet pathi, dhe thirret kur t bejme insert per path, si dhe per daten e lindjes
+                    boolean insertedToDb = db.insertstdInfo( et_name.getText().toString(), et_surname.getText().toString(), chooseGender.getSelectedItem().toString(),currentPhotoPath, formatedDate);
 
                     if (insertedToDb) {
                         Toast.makeText(getApplicationContext(),
@@ -156,41 +180,54 @@ public class RegisterActivity extends AppCompatActivity implements NavigationVie
         });
             }
 
-    private void askCameraPermissions() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, CAMERA_PERM_CODE);
-        } else {
-            openCamera();
-        }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
+        if (requestCode == CAMERA_REQUEST  && resultCode==RESULT_OK) {
+            try {
+                Bitmap mImageBitmap;
+                mImageBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), Uri.parse(currentPhotoPath));
+
+                iv_userCamera.setImageBitmap(mImageBitmap);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == CAMERA_PERM_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                dispatchTakePictureIntent();
-            } else {
-                Toast.makeText(this, "Camera Permission is Required to Use camera.", Toast.LENGTH_SHORT).show();
+    private File createImageFile() throws IOException {
+
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                "example",  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+        db.path = currentPhotoPath;
+        currentPhotoPath = "file:" +image.getAbsolutePath();
+        return image;
+    }
+
+    private void dispatchTakePictureIntent() {
+
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            if (photoFile != null) {
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
+                startActivityForResult(takePictureIntent, CAMERA_REQUEST);
             }
         }
     }
 
-    private void openCamera() {
-        Intent camera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        startActivityForResult(camera, 102);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == CAMERA_REQUEST_CODE) {
-            Bitmap image = (Bitmap) data.getExtras().get("data");
-            iv_userCamera.setImageBitmap(image);
-
-        }
-
-    }
     private void galleryAddPic() {
         Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
         File f = new File(currentPhotoPath);
@@ -200,53 +237,6 @@ public class RegisterActivity extends AppCompatActivity implements NavigationVie
     }
 
 
-
-    private String getFileExt(Uri contentUri) {
-        ContentResolver c = getContentResolver();
-        MimeTypeMap mime = MimeTypeMap.getSingleton();
-        return mime.getExtensionFromMimeType(c.getType(contentUri));
-    }
-
-
-    private File createImageFile() throws IOException {
-        // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        //File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpg",         /* suffix */
-                storageDir      /* directory */
-        );
-
-        db.path = currentPhotoPath;
-        currentPhotoPath = "file:" +image.getAbsolutePath();
-        return image;
-    }
-
-
-    private void dispatchTakePictureIntent() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-
-        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            // Create the File where the photo should go
-            File photoFile = null;
-            try {
-                photoFile = createImageFile();
-            } catch (IOException ex) {
-
-            }
-            // Continue only if the File was successfully created
-            if (photoFile != null) {
-                Uri photoURI = FileProvider.getUriForFile(this,
-                        "net.smallacademy.android.fileprovider",
-                        photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                startActivityForResult(takePictureIntent, CAMERA_REQUEST_CODE);
-            }
-        }
-    }
 
 
     @Override

@@ -4,10 +4,17 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.Image;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.TableLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -20,10 +27,16 @@ import com.example.studentregister.db.DBHelper;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.io.File;
+
 public class InfoActivity  extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
     public DrawerLayout drawerLayout;
     public ActionBarDrawerToggle actionBarDrawerToggle;
     public NavigationView navigationView = null;
+    static TextView tv_info;
+    ImageView  iv_userCamera;
+    DBHelper db;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,8 +45,18 @@ public class InfoActivity  extends AppCompatActivity implements NavigationView.O
         actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.nav_open, R.string.nav_close);
         drawerLayout = (DrawerLayout) findViewById(R.id.my_drawer_layout);
 
+        tv_info = (TextView) findViewById(R.id.tv_info);
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+
+        Bundle extrass = getIntent().getExtras();
+
+        //ketu eshte metoda qe na bene concatinate te dhenat e userit, te cilat neper mjet bundle extras jane te ruajtura ne main dhe ne momentin
+        // kur i kalojme ne aktivitetin tjeter ato jane te ruajtura si- extrass.get("Emri") dhe jane te bashkuara ne nje text view i cili eshte
+        // tv_info
+        tv_info.setText("ID : " +extrass.get("Id")+"\n"+ "Emri : " + extrass.get("Emri")+"\n"+ "Mbiemri : "
+                +extrass.get("Mbiemri")+"\n"+"Gjinia : "+extrass.get("Gjinia") + "\n" + "Ditelindja : " + extrass.get("Ditelindja"));
 
 
         drawerLayout.addDrawerListener(actionBarDrawerToggle);
@@ -41,9 +64,11 @@ public class InfoActivity  extends AppCompatActivity implements NavigationView.O
 
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+
+        db = new DBHelper(this);
+
     }
-
-
 @Override
 public boolean onNavigationItemSelected(MenuItem item) {
 
